@@ -1,13 +1,15 @@
-import './App.css';
+
 import React, {useState, useRef, useEffect} from 'react';
 import Resizer from 'react-image-file-resizer';
 import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
+import Container from 'react-bootstrap/Container';
+import './App.css'
 
 
 const UploadCnv = () => {
 
     const myImage = useRef(false);
+    const myFile = useRef(false);
     const [source, setSource] = useState();
     const [realsource, setRealSource] = useState();
   
@@ -116,9 +118,8 @@ const UploadCnv = () => {
     const convert = async (event) => {
       try {
           const file = event.target.files[0];
-  
           const dpi = [0.1875, 0.25, 0.375, 0.5, 0.75, 1.0]
-          let imgary = []
+          myFile.current.value=""
           await Promise.all(dpi.map(async (ratio) => {
             const image = await resizeFile(file, ratio);
   
@@ -127,26 +128,29 @@ const UploadCnv = () => {
             if (ratio === 0.1875){
               setSource(image);
             }
-            upload(dataURItoBlob(image, 'image/jpeg'), ratio, "woah")
+            upload(dataURItoBlob(image, 'image/jpeg'), ratio, "woah");
           }))
-          
-  
+          .then(alert("upload complete"))
       } catch(err) {
           console.log(err);
       }
     } 
   
     return (
-      <div >
-        <header className="App-header">
-          <p className="App">
+      <Container className="p-3">
+        <div className="content">
+          <p className="App-header">
             Resolve resolution
           </p>
-          <img src={realsource} ref={myImage} alt="img" className="App-logo" hidden/>
+          <p className="example">
+              Upload an image to convert to 5 different sizes and upload to bucket
+            </p>
+          <hr className="my-4"></hr>
           <img src={source} alt="img" className="App-logo"/>
-          <input id="imageFile" name="imageFile" type="file" className="imageFile"  accept="image/*" onChange={convert} /> 
-        </header>
-      </div>
+          <img src={realsource} ref={myImage} alt="img" className="App-logo" hidden/>
+          <input ref={myFile} id="imageFile" name="imageFile" type="file" className="imageFile"  accept="image/*" onChange={convert} /> 
+        </div>
+      </Container>
     );
   }
   

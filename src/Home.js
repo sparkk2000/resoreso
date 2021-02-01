@@ -1,13 +1,14 @@
-import './App.css';
 import React, {useState, useRef, useEffect} from 'react';
 import Resizer from 'react-image-file-resizer';
 import AWS from 'aws-sdk';
-import { v4 as uuidv4 } from 'uuid';
+import Container from 'react-bootstrap/Container';
+import './App.css'
 
 
 const LinkCnv = () => {
 
     const myImage = useRef(false);
+    const myFile = useRef(false);
     const [source, setSource] = useState();
     const [realsource, setRealSource] = useState();
   
@@ -89,8 +90,9 @@ const LinkCnv = () => {
             Body: image
           }
         });
-      const promise = await upload.promise();
-  
+
+      
+      const promise = await upload.promise()
     }
   
     function dataURItoBlob(dataURI) {
@@ -136,7 +138,6 @@ const LinkCnv = () => {
             })
             .then( async (blob) =>{
                 const dpi = [0.1875, 0.25, 0.375, 0.5, 0.75, 1.0]
-                let imgary = []
                 await Promise.all(dpi.map(async (ratio) => {
                     const image = await resizeFile(blob, ratio);
                     console.log(ratio);
@@ -146,86 +147,33 @@ const LinkCnv = () => {
                     }
                     upload( dataURItoBlob(image), ratio, filename )
                 }))
-            });
+            })
+            .then(resolve => alert("upload complete"))
+            .then(resolve=> myFile.current.value="");
             }
-
       } catch(err) {
           console.log(err);
       }
     }
 
-
-    // const convert = async (event) => {
-    //     var s3 = new AWS.S3();
-    //     try {
-    //         const file = event.target.files[0];
-
-    //         let fileReader = new FileReader();
-    //         fileReader.onload = () => {
-    //             const urlary = fileReader.result.split(",");
-    //             const curenturl = urlary[0];
-    //             const bucket = urlary[0].split('//')[1].split('/')[0];
-    //             const key = urlary[0].split('//')[1].split('/')[1] + '/' + urlary[0].split('//')[1].split('/')[2];
-    //             s3.getObject({
-    //                 Bucket: bucket,
-    //                 Key: key
-    //             }, 
-    //             function (errtxt, file) {
-    //                 if (errtxt) {
-    //                     console.Log("lireFic", "ERR " + errtxt);
-    //                 } 
-    //                 else {
-    //                     console.log('lecture OK');
-    //                     // imageTest.src = "data:image/png;base64," + encode(file.Body);
-    //                     const things = "data:image/png;base64," + encode(file.Body)
-    //                     const thing = dataURItoBlob(things, 'image/jpeg')
-    //                     restFx(thing);
-    //                 }
-    //             });
-
-    //         };
-    //         fileReader.readAsText(file);
-
-        // const restFx = async (awsfile) => {
-        //   const dpi = [0.1875, 0.25, 0.375, 0.5, 0.75, 1.0]
-        //   let imgary = []
-        //   await Promise.all(dpi.map(async (ratio) => {
-        //     const image = await resizeFile(awsfile, ratio);
-  
-        //     console.log(ratio);
-        //     console.log(image);
-        //     if (ratio === 0.1875){
-        //       setSource(image);
-        //     }
-        //     upload(dataURItoBlob(image, 'image/jpeg'), ratio, "woah")
-        //   }))
-        // }
-
-    //     const encode = (data) => {
-    //         var str = data.reduce(function(a,b){ return a+String.fromCharCode(b) },'');
-    //         return btoa(str).replace(/.{76}(?=.)/g,'$&\n');
-    //     }
-          
-  
-    //   } catch(err) {
-    //       console.log(err);
-    //   }
-    // } 
-  
     return (
-      <div >
-        <header className="App-header">
-          <p className="App">
-            Upload a Text file with links to the s3 bucket images.
-          </p>
-          <p className="App">
-            Ex) https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png, https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png
-          </p>
-          <img src={realsource} ref={myImage} alt="img" className="App-logo" hidden/>
-          <img src={source} alt="img" className="App-logo"/>
-          <input id="textFile" name="textFile" type="file" className="textFile" onChange={convert} /> 
-        </header>
-      </div>
+      <Container className="p-3">
+        <div className="content">
+            <p className="App-header">
+              Upload a Text file with links to the s3 bucket images.
+            </p>
+            <p className="example">
+              Example
+            </p>
+            <p className="example">
+              "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png, https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png"
+            </p>
+            <hr className="my-4"/>
+            <img src={realsource} ref={myImage} alt="img" className="App-logo" hidden/>
+            <img src={source} alt="img" className="App-logo"/>
+            <input ref={myFile} id="textFile" name="textFile" type="file" className="textFile" onChange={convert} /> 
+        </div>
+      </Container>
     );
   }
   
